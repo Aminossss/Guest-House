@@ -1,0 +1,1220 @@
+function registrer() {
+
+    var nom = document.getElementById("nom").value;
+    var verifNom = verifLength(nom, 6);
+    if (verifNom) {
+        document.getElementById("nomError").innerHTML = "";
+    }
+    else {
+        document.getElementById("nomError").innerHTML = "First Name have at least 5 characters";
+        document.getElementById("nomError").style.color = "red";
+
+
+    }
+    var prenom = document.getElementById("prenom").value;
+    var verifprenom = verifLength(prenom, 5);
+    if (verifprenom) {
+        document.getElementById("prenomError").innerHTML = "";
+    }
+    else {
+        document.getElementById("prenomError").innerHTML = "Last Name have at least 5 characters";
+        document.getElementById("prenomError").style.color = "red";
+
+    }
+    var email = document.getElementById("email").value;
+    //controle de saisi pour validite de email
+
+    var verifEmail = validateEmail(email);
+    if (verifEmail) {
+        document.getElementById("emailError").innerHTML = "";
+    }
+    else {
+        document.getElementById("emailError").innerHTML = "Invalid Email";
+        document.getElementById("emailError").style.color = "red";
+
+    }
+    var pwd = document.getElementById("pwd").value;
+    var verifPwd = verifLength(pwd, 8);
+    if (verifPwd) {
+        document.getElementById("pwdError").innerHTML = "";
+    }
+    else {
+        document.getElementById("pwdError").innerHTML = "Password must have at least 8 characters";
+        document.getElementById("pwdError").style.color = "red";
+
+    }
+    var confirmPwd = document.getElementById("confirmPwd").value;
+    if (pwd == confirmPwd) {
+        document.getElementById("confirmPwdError").innerHTML = "";
+    }
+    else {
+        document.getElementById("confirmPwdError").innerHTML = "confirmPwd invalid";
+        document.getElementById("confirmPwdError").style.color = "red";
+
+    }
+    var tel = document.getElementById('tel').value;
+    if (tel.length == 8) {
+        document.getElementById("telError").innerHTML = "";
+    }
+    else {
+        document.getElementById("telError").innerHTML = "Tel invalid";
+        document.getElementById("telError").style.color = "red";
+
+    }
+    if (verifNom && verifprenom && verifEmail && verifPwd && pwd == confirmPwd && tel.length == 8) {
+        // recuperation de tableau users du localStorage 
+        var utilisateurMaison = JSON.parse(localStorage.getItem("utilisateurMaison") || "[]"); // (ya3ni valeur eli bech tjini m localstorge bech n7awalha m chaine de caractere l objet)
+        var idUtilisateurMs = JSON.parse(localStorage.getItem("idUtilisateurMs") || "3");
+        // regrouper les donnees dans un objet user
+        var utilisateurMs = {
+            id: idUtilisateurMs,
+            nom: nom,
+            prenom: prenom,
+            email: email,
+            pwd: pwd,
+            confirmPwd: confirmPwd,
+            tel: tel,
+            role: "utilisateur" //user ou bien admin
+        };
+
+        utilisateurMaison.push(utilisateurMs);
+        //9bal manraja3 tableau avec setItem(cle, valeur) lazem nconvertih l chaine de caractere avec JSON.stringify(cle)
+        localStorage.setItem("utilisateurMaison", JSON.stringify(utilisateurMaison));
+        // donner l'id suivant 
+        localStorage.setItem("idUtilisateurMs", idUtilisateurMs + 1);
+
+        // Swal.fire({
+        // position: 'top-end',
+        // icon: 'success',
+        //  title: 'votre Compte a ete creer avec succes',
+        //   showConfirmButton: false,
+        //    timer: 3000
+        //  });
+        location.replace("login.html");
+
+
+    }
+}
+function verifLength(ch, nb) {
+
+    return ch.length >= nb;
+
+}
+
+function validateEmail(email) {
+    const regExp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return regExp.test(String(email).toLowerCase());
+}
+function addAdmin() {
+    var firstNameAdmin = document.getElementById('firstNameAdmin').value;
+    var lastNameAdmin = document.getElementById('lastNameAdmin').value;
+    var emailAdmin = document.getElementById('emailAdmin').value;
+    var pwdAdmin = document.getElementById('pwdAdmin').value;
+    var telAdmin = document.getElementById('telAdmin').value;
+
+    // récupération des données du tableau déjà stocké auparavant(JSON parse: string=>objet)
+    var utilisateurMaison = JSON.parse(localStorage.getItem("utilisateurMaison") || "[]");
+    // récupération de l'id de l'utilisateur (user)
+    var idAdminM = JSON.parse(localStorage.getItem("idAdminM") || "2");
+    // regrouper les données de l'utilisateur dans un objet (classe) user
+    var admin = {
+        id: idAdminM,
+        firstName: firstNameAdmin,
+        lastName: lastNameAdmin,
+        email: emailAdmin,
+        pwd: pwdAdmin,
+        tel: telAdmin,
+        //  différencier un utilisateur normal à un utilisateur admin, ici admin
+        role: "admin"
+    };
+
+    // Ajout du nouveau utilisateur (objet admin) dans le tableau users
+    utilisateurMaison.push(admin);
+    //stocker les élements dans le tableau users (JSON stringify: conversion string=>objet)
+    localStorage.setItem("utilisateurMaison", JSON.stringify(utilisateurMaison));
+    localStorage.setItem("idAdminM", idAdminM + 1);
+    location.reload();
+
+}
+
+function login() {
+    var utilisateurMaison = JSON.parse(localStorage.getItem("utilisateurMaison") || "[]");
+    var emailLogin = document.getElementById("emailLogin").value;
+    var pswLogin = document.getElementById("pswLogin").value;
+    for (let i = 0; i < utilisateurMaison.length; i++) {
+        if (utilisateurMaison[i].email == emailLogin && utilisateurMaison[i].pwd == pswLogin) {
+            var findedUtilisateur = utilisateurMaison[i];
+        }
+    }
+
+
+    switch (findedUtilisateur.role) {
+
+        case "super admin":
+            location.replace('adminMaison.html');
+            localStorage.setItem("connectedUtilisateurMs", JSON.stringify(findedUtilisateur));
+            break;
+
+
+
+        case "proprietaireMs":
+            location.replace('proprietaire.html');
+            localStorage.setItem("connectedUtilisateurMs", JSON.stringify(findedUtilisateur));
+            break;
+
+
+        default:
+            location.replace('index.html');
+            localStorage.setItem("connectedUtilisateurMs", JSON.stringify(findedUtilisateur));
+            break;
+    }
+
+}
+function insertSuperAdmin() {
+    var utilisateurMaison = JSON.parse(localStorage.getItem("utilisateurMaison") || "[]");
+    var superAdmin = {
+        id: 1,
+        firstName: "Marwa",
+        lastName: "Ghanmy",
+        email: "marwaghanmi18@gmail.com",
+        pwd: "superadmin1010",
+        tel: "20202692",
+        role: "super admin"
+    };
+    utilisateurMaison.push(superAdmin);
+    localStorage.setItem("utilisateurMaison", JSON.stringify(utilisateurMaison));
+    localStorage.setItem("ajoutSuperAdminMH", "true");
+}
+function displayUtilsateur() {
+    var utilisateurMaison = JSON.parse(localStorage.getItem("utilisateurMaison") || "[]");
+    var utilisateurTable = `<table class ="table table-hover">
+                <tr>
+                     <th>Prénom</th>
+                     <th>Nom</th>
+                     <th>Email</th>
+                     <th>Téléphone</th>
+                     
+                </tr>
+    
+    `;
+
+    for (let i = 0; i < utilisateurMaison.length; i++) {
+        if (utilisateurMaison[i].role == "utilisateur") {
+
+            utilisateurTable = utilisateurTable + `
+                <tr>
+                <td>${utilisateurMaison[i].nom}</td>
+                <td>${utilisateurMaison[i].prenom}</td>
+                <td>${utilisateurMaison[i].email}</td>
+                <td>${utilisateurMaison[i].tel}</td>
+                <td>
+                    <td> <button type="button" class="btn btn-warning" onclick="editUtilisateur(${utilisateurMaison[i].id})">Modifier</button>
+                <button type="button" class="btn btn-danger" onclick="deleteObject(${i},'utilisateurMaison')">Supprimer</button>
+                </td>
+                </tr>
+        `;
+
+        }
+
+    }
+    utilisateurTable = utilisateurTable + `</table>`;
+    document.getElementById("utilisateurTable").innerHTML = utilisateurTable;
+}
+function editUtilisateur(id) {
+    var searchedUtilisateur = searchById(id, "utilisateurMaison");
+    //console.log(searchedUsr);
+    //declarer une variable editPr eli bech n7otou fiha les input price et stock
+    var editUtilisateur = `
+  
+     <div class="col-md-12 form-group">
+	<input type="password" class="form-control" id="newPwd" name="name" placeholder="Password" value=${searchedUtilisateur.pwd}>
+    </div>
+	<span id="newPwdError"></span>
+    <div class="col-md-12 form-group">
+    <input type="tel" class="form-control" id="newTelephone" name="name" placeholder="Tel" value=${searchedUtilisateur.tel}>
+    </div>
+    <span id="newTelephoneError"></span>
+    <div class="col-md-12 form-group">
+	<button type="submit" value="submit" class="primary-btn" onclick="validateEditUtilisateur(${searchedUtilisateur.id})">Validate</button>
+	</div>
+							
+
+
+    `;
+    document.getElementById("editUtilisateur").innerHTML = editUtilisateur;
+
+
+}
+// foction validateEditUser 
+function validateEditUtilisateur(id) {
+    var newPwd = document.getElementById("newPwd").value;
+    var verifPwd = verifLength(newPwd, 8);
+
+    if (verifPwd) {
+        document.getElementById("newPwd").innerHTML = "";
+    }
+    else {
+        document.getElementById("newPwdError").innerHTML = "pwd invalid";
+        document.getElementById("newPwdError").style.color = "red";
+
+    }
+    var newTelephone = document.getElementById("newTelephone").value;
+    var verifTel = (newTelephone.length == 8);
+    if (verifTel) {
+        document.getElementById("newTelephone").innerHTML = "";
+    }
+    else {
+        document.getElementById("newTelephoneError").innerHTML = "tel invalid";
+        document.getElementById("newTelephoneError").style.color = "red";
+
+    }
+
+    if (verifTel && verifPwd) {
+        var utilisateurMaison = JSON.parse(localStorage.getItem("utilisateurMaison") || "[]");
+        for (let i = 0; i < utilisateurMaison.length; i++) {
+            if (utilisateurMaison[i].id == id) {
+                utilisateurMaison[i].pwd = newPwd;
+                utilisateurMaison[i].confirmPwd = newPwd;
+                utilisateurMaison[i].tel = newTelephone;
+
+            }
+
+        }
+        localStorage.setItem("utilisateurMaison", JSON.stringify(utilisateurMaison));
+        location.reload();
+    }
+
+}
+
+
+
+function ajoutMaison() {
+    var nomMaison = document.getElementById("nomMaison").value;
+    if (verifLength(nomMaison, 4)) {
+        document.getElementById("nomMaisonError").innerHTML = '';
+    }
+    else {
+        document.getElementById("nomMaisonError").innerHTML = 'Le nom de la maison doit comporter au moins 4 lettres';
+        document.getElementById("nomMaisonError").style.color = 'red';
+    }
+
+    var adresse = document.getElementById("adresse").value;
+
+    if (verifLength(adresse, 6)) {
+        document.getElementById("adresseError").innerHTML = '';
+    }
+    else {
+        document.getElementById("adresseError").innerHTML = "L'adresse doit comporter au moins 6 caracteres";
+        document.getElementById("adresseError").style.color = 'red';
+    }
+
+
+    var nbrChambre = document.getElementById("nbrChambre").value;
+
+    if (nbrChambre > 0) {
+        document.getElementById("nbrChambreError").innerHTML = '';
+    }
+    else {
+        document.getElementById("nbrChambreError").innerHTML = "Le nombre de chambre doit etre positif";
+        document.getElementById("nbrChambreError").style.color = 'red';
+    }
+
+    var tarifEnfant = document.getElementById("tarifEnfant").value;
+    if (tarifEnfant > 0) {
+        document.getElementById("tarifEnfantError").innerHTML = '';
+    }
+    else {
+        document.getElementById("tarifEnfantError").innerHTML = "Le tarif doit etre positif";
+        document.getElementById("tarifEnfantError").style.color = 'red';
+    }
+
+    var tarifAdult = document.getElementById("tarifAdult").value;
+    if (tarifAdult > 0) {
+        document.getElementById("tarifAdultError").innerHTML = '';
+    }
+    else {
+        document.getElementById("tarifAdultError").innerHTML = "Le tarif doit etre positif";
+        document.getElementById("tarifAdultError").style.color = 'red';
+    }
+
+    var tarifSingleRoom = document.getElementById("tarifSingleRoom").value;
+    if (tarifSingleRoom > 0) {
+        document.getElementById("tarifSingleRoomError").innerHTML = '';
+    }
+    else {
+        document.getElementById("tarifSingleRoomError").innerHTML = "Le tarif doit etre positif";
+        document.getElementById("tarifSingleRoomError").style.color = 'red';
+    }
+
+    var tarifDoubleRoom = document.getElementById("tarifDoubleRoom").value;
+    if (tarifDoubleRoom > 0) {
+        document.getElementById("tarifDoubleRoomError").innerHTML = '';
+    }
+    else {
+        document.getElementById("tarifDoubleRoomError").innerHTML = "Le tarif doit etre positif";
+        document.getElementById("tarifDoubleRoomError").style.color = 'red';
+    }
+    var theme = document.getElementById("theme").value;
+theme
+    if (theme != "") {
+        document.getElementById("themeError").innerHTML = '';
+    }
+    else {
+        document.getElementById("themeError").innerHTML = "Veuillez choisir la region";
+        document.getElementById("themeError").style.color = 'red';
+    }
+
+
+    var region = document.getElementById("region").value;
+
+    if (region != "") {
+        document.getElementById("regionError").innerHTML = '';
+    }
+    else {
+        document.getElementById("regionError").innerHTML = "Veuillez choisir la region";
+        document.getElementById("regionError").style.color = 'red';
+    }
+
+
+    var descriptionMaison = document.getElementById("descriptionMaison").value;
+    if (descriptionMaison != "") {
+        document.getElementById("descriptionMaisonError").innerHTML = '';
+    }
+    else {
+        document.getElementById("descriptionMaisonError").innerHTML = "la description doit être non vide";
+        document.getElementById("descriptionMaisonError").style.color = 'red';
+    }
+    var maisonImage = document.getElementById("avatar").value;
+    var newImage = replacePath(maisonImage);
+    var connectedUtilisateurMs = JSON.parse(localStorage.getItem("connectedUtilisateurMs"));
+
+    if ((verifLength(nomMaison, 4)) && (verifLength(adresse, 6)) && (nbrChambre > 0) && (tarifEnfant > 0) &&
+        (tarifAdult > 0) && (tarifDoubleRoom > 0) && (tarifSingleRoom > 0) &&(theme != "")&& (region != "") && (connectedUtilisateurMs.role == "proprietaireMs") &&
+        (descriptionMaison != "")) {
+
+        var maisons = JSON.parse(localStorage.getItem("maisons") || "[]");
+        var idMaison = JSON.parse(localStorage.getItem("idMaison") || "1");
+
+        var maison = {
+            id: idMaison,
+            nomMaison: nomMaison,
+            adresse: adresse,
+            nbrChambre: nbrChambre,
+            tarifEnfant: tarifEnfant,
+            tarifAdult: tarifAdult,
+            tarifDoubleRoom: tarifDoubleRoom,
+            tarifSingleRoom: tarifSingleRoom,
+            region: region,
+            theme:theme,
+            idProp: connectedUtilisateurMs.id,
+            descriptionMaison: descriptionMaison,
+            image: newImage
+
+
+        };
+
+        maisons.push(maison);
+        localStorage.setItem("maisons", JSON.stringify(maisons));
+        localStorage.setItem("idMaison", idMaison + 1);
+        location.reload();
+    }
+}
+function displayMaison() {
+    var maisons = JSON.parse(localStorage.getItem("maisons") || "[]");
+    console.log("maisons", maisons);
+
+    var TableMaison = ``;
+    var connectedUtilisateurMs = JSON.parse(localStorage.getItem("connectedUtilisateurMs"));
+    var maisonsHT = [];
+
+    for (let i = 0; i < maisons.length; i++) {
+        if (connectedUtilisateurMs.id == maisons[i].idProp) {
+            maisonsHT.push(maisons[i]);
+
+        }
+    }
+
+    console.log("maisonsHT", maisonsHT);
+
+
+
+    TableMaison = `<table class="table table-hover" style="table-layout: fixed;width: 100%;" >
+        <tr>
+            <th style="width=30px" > Nom Maison</th>
+            <th> Adresse</th>
+            <th> Chambres</th>
+            <th> Tarif Enfant</th>
+            <th> Tarif Adulte</th>
+            <th> Tarif Chambre D </th>
+            <th> Tarif chambre S</th>
+            <th> Themes</th>
+            <th> Région</th>
+            <th> Description</th>
+
+            <th> Actions</th>
+        </tr>`;
+
+    for (let i = 0; i < maisonsHT.length; i++) {
+        TableMaison = TableMaison + `
+    <tr>
+    <td> ${maisonsHT[i].nomMaison}</td>
+    <td> ${maisonsHT[i].adresse}</td>
+    <td> ${maisonsHT[i].nbrChambre}</td>
+    <td> ${maisonsHT[i].tarifEnfant}</td>
+    <td> ${maisonsHT[i].tarifAdult}</td>
+    <td> ${maisonsHT[i].tarifDoubleRoom}</td>
+    <td> ${maisonsHT[i].tarifSingleRoom}</td>
+    <td> ${maisonsHT[i].theme}</td>
+    <td> ${maisonsHT[i].region}</td>
+    <td> ${maisonsHT[i].descriptionMaison}</td>
+
+
+    
+   
+    <td> 
+    <button type="button" class="btn btn-warning" onclick="modifMaison(${maisonsHT[i].id})" style="font-size:10px">Modifier</button>
+    <button type="button" class="btn btn-danger" onclick="deleteObject(${searchPosition(maisonsHT[i].id, 'maisons')},'maisons')" style="margin-left:60px;font-size:10px"" >Supprimer</button>
+    </td> 
+    </tr>`;
+    }
+    TableMaison = TableMaison + `</table>`;
+    document.getElementById("TableMaison").innerHTML = TableMaison;
+}
+function modifMaison(id) {
+    var maison = searchById(id, "maisons");
+    var modifMaison = `
+    
+        <div class="mb-3">
+            <input type="number" class="form-control" id="newTarif" placeholder="Nouveau Tarif" value=${maison.tarifEnfant}> 
+            <span id="newTarifError"></span>
+        </div>
+        <div class="mb-3">
+        <input type="number" class="form-control" id="newTarifAdult" placeholder="Nouveau Tarif" value=${maison.tarifAdult}> 
+        <span id="newTarifAdultError"></span>
+    </div>
+            <div class="mb-3">
+            <input type="number" class="form-control" id="newTarifRoom" placeholder="Nouveau Tarif" value=${maison.tarifDoubleRoom}> 
+            <span id="newTarifRoomError"></span>
+        </div>
+        <div class="mb-3">
+        <input type="number" class="form-control" id="newTarifRoomS" placeholder="Nouveau Tarif" value=${maison.tarifSingleRoom}> 
+        <span id="newTarifRoomSError"></span>
+    </div>
+        <div class="mb-3">
+            <input type="number" class="form-control" id="newNbrChambre" placeholder="Nouveau nombre de chambres"  value=${maison.nbrChambre}> 
+            <span id="newNbrChambreError"></span>
+        </div>
+        <button type="button" class="btn btn-primary" style="margin-left: 40%;" onclick="validerModifMaison(${maison.id})">Modifier</button>
+    `;
+    document.getElementById("modifMaison").innerHTML = modifMaison;
+}
+function validerModifMaison(id) {
+    var newTarif = document.getElementById("newTarif").value;
+    if (newTarif > 0) {
+        document.getElementById("newTarifError").innerHTML = '';
+    }
+    else {
+        document.getElementById("newTarifError").innerHTML = "Le nouveau Tarif doit être strictement positif";
+        document.getElementById("newTarifError").style.color = 'red';
+    }
+    var newTarifAdult = document.getElementById("newTarifAdult").value;
+    if (newTarifAdult > 0) {
+        document.getElementById("newTarifAdultError").innerHTML = '';
+    }
+    else {
+        document.getElementById("newTarifAdultError").innerHTML = "Le nouveau Tarif doit être strictement positif";
+        document.getElementById("newTarifAdultError").style.color = 'red';
+    }
+    var newTarifRoom = document.getElementById("newTarifRoom").value;
+    if (newTarifRoom > 0) {
+        document.getElementById("newTarifRoomError").innerHTML = '';
+    }
+    else {
+        document.getElementById("newTarifRoomError").innerHTML = "Le nouveau Tarif doit être strictement positif";
+        document.getElementById("newTarifRoomError").style.color = 'red';
+    }
+    var newTarifRoomS = document.getElementById("newTarifRoomS").value;
+    if (newTarifRoomS > 0) {
+        document.getElementById("newTarifRoomSError").innerHTML = '';
+    }
+    else {
+        document.getElementById("newTarifRoomSError").innerHTML = "Le nouveau Tarif doit être strictement positif";
+        document.getElementById("newTarifRoomSError").style.color = 'red';
+    }
+    var newNbrChambre = document.getElementById("newNbrChambre").value;
+    if (newNbrChambre > 0) {
+        document.getElementById("newNbrChambreError").innerHTML = '';
+    }
+    else {
+        document.getElementById("newNbrChambreError").innerHTML = "Le nouveau nombre de chambres doit être strictement positif";
+        document.getElementById("newNbrChambreError").style.color = 'red';
+    }
+
+    if ((newTarif > 0) && (newTarifAdult > 0) && (newNbrChambre > 0) && (newTarifRoom > 0) && (newTarifRoomS > 0)) {
+        var maisons = JSON.parse(localStorage.getItem("maisons") || "[]");
+        for (let i = 0; i < maisons.length; i++) {
+            if (maisons[i].id == id) {
+                maisons[i].tarifEnfant = newTarif;
+                maisons[i].tarifAdult = newTarifAdult;
+                maisons[i].tarifDoubleRoom = newTarifRoom;
+                maisons[i].tarifSingleRoom = newTarifRoomS;
+                maisons[i].nbrChambre = newNbrChambre;
+            }
+        }
+        localStorage.setItem("maisons", JSON.stringify(maisons));
+        location.reload();
+    }
+}
+function insertProprietaire() {
+    var prenomProp = document.getElementById('prenomProp').value;
+
+    var verifPrenomProp = verifLength(prenomProp, 5);
+
+    if (verifPrenomProp) {
+        document.getElementById("prenomPropError").innerHTML = "";
+    }
+    else {
+        document.getElementById("prenomPropError").innerHTML = "Le prénom doit contenir au minimum 5 caractères!";
+        document.getElementById("prenomPropError").style.color = "red";
+    }
+
+    var nomProp = document.getElementById('nomProp').value;
+
+    var verifNomProp = verifLength(nomProp, 5);
+
+    if (verifNomProp) {
+        document.getElementById("nomPropError").innerHTML = "";
+    }
+    else {
+        document.getElementById("nomPropError").innerHTML = "Le nom doit contenir au minimum 5 caractères!";
+        document.getElementById("nomPropError").style.color = "red";
+    }
+
+    var emailProp = document.getElementById('emailProp').value;
+    var verifEmailProp = validateEmail(emailProp);
+    if (verifEmailProp) {
+        document.getElementById("emailPropError").innerHTML = "";
+    }
+    else {
+        document.getElementById("emailPropError").innerHTML = "Email est non valide!";
+        document.getElementById("emailPropError").style.color = 'red';
+    }
+
+    var pwdProp = document.getElementById('pwdProp').value;
+    var verifPwdProp = verifLength(pwdProp, 8);
+    if (verifPwdProp) {
+        document.getElementById("pwdPropError").innerHTML = "";
+    }
+    else {
+        document.getElementById("pwdPropError").innerHTML = "Le mot de passe doit contenir au minimum 8 caractères!";
+        document.getElementById("pwdPropError").style.color = "red";
+    }
+
+    var telProp = document.getElementById('telProp').value;
+    if (telProp.length == 8) {
+        document.getElementById("telPropError").innerHTML = "";
+    }
+    else {
+
+        document.getElementById("telPropError").innerHTML = "Le numéro de teléphone doit contenir 8 chiffres!";
+        document.getElementById("telPropError").style.color = "red";
+    }
+
+    if ((verifPrenomProp) && (verifNomProp) && (verifEmailProp) && (verifPwdProp) && (telProp.length == 8)) {
+
+        var utilisateurMaison = JSON.parse(localStorage.getItem("utilisateurMaison") || "[]");
+        var idProp = JSON.parse(localStorage.getItem("idProp") || "2");
+
+        var proprietaire = {
+            id: idProp,
+            prenomProp: prenomProp,
+            nomProp: nomProp,
+            email: emailProp,
+            pwd: pwdProp,
+            telProp: telProp,
+            role: "proprietaireMs"
+        };
+
+        utilisateurMaison.push(proprietaire);
+
+        localStorage.setItem("utilisateurMaison", JSON.stringify(utilisateurMaison));
+        localStorage.setItem("idProp", idProp + 1);
+
+        location.reload();
+    }
+}
+
+function displayProprietaire() {
+    var utilisateurMaison = JSON.parse(localStorage.getItem("utilisateurMaison") || "[]");
+    var TableProp = `<table class ="table table-hover">
+                <tr>
+                     <th>Prénom</th>
+                     <th>Nom</th>
+                     <th>Email</th>
+                     <th>Téléphone</th>
+                     <th>Actions</th>
+
+                     
+                </tr>
+    
+    `;
+
+    for (let i = 0; i < utilisateurMaison.length; i++) {
+        if (utilisateurMaison[i].role == "proprietaireMs") {
+
+            TableProp = TableProp + `
+                <tr>
+                <td>${utilisateurMaison[i].prenomProp}</td>
+                <td>${utilisateurMaison[i].nomProp}</td>
+                <td>${utilisateurMaison[i].email}</td>
+                <td>${utilisateurMaison[i].telProp}</td>
+                <td>
+                <button type="button" class="btn btn-warning" onclick="editProprietaire(${utilisateurMaison[i].id})">Modifier</button>
+                <button type="button" class="btn btn-danger" onclick="deleteObject(${i},'utilisateurMaison')">Supprimer</button>
+                </td>
+                </tr>
+        `;
+
+        }
+
+    }
+    TableProp = TableProp + `</table>`;
+    document.getElementById("TableProp").innerHTML = TableProp;
+}
+function editProprietaire(id) {
+    var searchedProp = searchById(Number(id), "utilisateurMaison");
+    var editProp = `
+                             <div class="col-md-12 form-group">
+								<input type="text" class="form-control" id="newPwdProp" name="newPwdProp" placeholder="Mot de passe" >
+								<span id="newPwdPropError"></span>
+							</div>
+                            <div class="col-md-12 form-group">
+								<input type="number" class="form-control" id="newTelProp" name="tel" placeholder="Téléphone" min="0" value=${searchedProp.tel}>
+								<span id="newTelPropError"></span>
+							</div>
+                            <button type="button" class="btn btn-warning" onclick = "validateEditProp(${searchedProp.id})">Validate</button>
+    `;
+    document.getElementById("editProp").innerHTML = editProp;
+}
+function validateEditProp(id) {
+    var newPwdProp = document.getElementById('newPwdProp').value;
+    var verifPwdProp = verifLength(newPwdProp, 8);
+
+    if (verifPwdProp) {
+        document.getElementById("newPwdPropError").innerHTML = "";
+    }
+    else {
+        document.getElementById("newPwdPropError").innerHTML = "Le mot de passe doit contenir au minimum 8 caractères!";
+        document.getElementById("newPwdPropError").style.color = "red";
+    }
+
+    var newTelProp = document.getElementById('newTelProp').value;
+    var verifTelProp = newTelProp.length == 8;
+    if (verifTelProp) {
+        document.getElementById("newTelPropError").innerHTML = "";
+    }
+    else {
+
+        document.getElementById("newTelPropError").innerHTML = "Le numéro de teléphone doit contenir 8 chiffres!";
+        document.getElementById("newTelPropError").style.color = "red";
+    }
+
+
+    if (verifPwdProp && verifTelProp) {
+        var utilisateurMaison = JSON.parse(localStorage.getItem("utilisateurMaison") || "[]");
+
+        for (let i = 0; i < utilisateurMaison.length; i++) {
+            if (utilisateurMaison[i].id == id) {
+                utilisateurMaison[i].pwdProp = newPwdProp;
+                utilisateurMaison[i].telProp = newTelProp;
+                utilisateurMaison[i].confirmPwd = newPwdProp;
+            }
+
+        }
+        localStorage.setItem("utilisateurMaison", JSON.stringify(utilisateurMaison));
+        location.reload();
+
+    }
+}
+
+function deleteObject(pos, T) {
+    var objects = JSON.parse(localStorage.getItem(T) || "[]");
+    objects.splice(pos, 1);
+    localStorage.setItem(T, JSON.stringify(objects));
+    location.reload();
+}
+
+function searchById(x, T) {
+    var objects = JSON.parse(localStorage.getItem(T) || "[]");
+    var obj;
+    for (let i = 0; i < objects.length; i++) {
+        if (objects[i].id == x) {
+            obj = objects[i];
+        }
+    }
+    return obj;
+
+}
+function searchPosition(id, T) {
+    var tab = JSON.parse(localStorage.getItem(T) || "[]");
+    var pos;
+    for (let i = 0; i < tab.length; i++) {
+
+        if (tab[i].id == id) {
+            pos = i;
+
+        }
+
+    }
+    return pos;
+
+}
+
+
+
+function replacePath(path) {
+
+
+    var newpath = path.replace(/\\/g, "/");
+    var res = newpath.replace("fakepath", "/Users/ACER/Desktop/Maisons/img/gallery");
+    return res;
+
+}
+
+function searchObjectPosition(id, clé) {
+    var objects = JSON.parse(localStorage.getItem(clé) || "[]");
+    var index;
+    for (let i = 0; i < objects.length; i++) {
+        if (objects[i].id == id) {
+            index = i;
+        }
+    }
+    return index;
+}
+function sendMessage() {
+
+    var nom = document.getElementById("nom").value;
+    var verifNom = verifLength(nom, 5);
+    if (verifNom) {
+        document.getElementById("nomError").innerHTML = "";
+    }
+    else {
+        document.getElementById("nomError").innerHTML = "nom have at least 5 characters";
+        document.getElementById("nomError").style.color = "red";
+
+
+    }
+
+    var email = document.getElementById("email").value;
+    var verifEmail = validateEmail(email);
+    if (verifEmail) {
+        document.getElementById("emailError").innerHTML = "";
+    }
+    else {
+        document.getElementById("emailError").innerHTML = "Invalid Email";
+        document.getElementById("emailError").style.color = "red";
+
+    }
+    var sujet = document.getElementById("sujet").value;
+    if (sujet.length != 0) {
+        document.getElementById("sujetError").innerHTML = "";
+    }
+    else {
+        document.getElementById("sujetError").innerHTML = "sujet is required";
+        document.getElementById("sujetError").style.color = "red";
+
+    }
+
+    var msg = document.getElementById("msg").value;
+    if (msg.length != 0) {
+        document.getElementById("msgError").innerHTML = "";
+    }
+    else {
+        document.getElementById("msgError").innerHTML = "Message is required";
+        document.getElementById("msgError").style.color = "red";
+
+    }
+    if (verifNom && verifEmail && (sujet.length != 0) && (msg.length != 0)) {
+        var msgs = JSON.parse(localStorage.getItem("msgs") || "[]");
+        var idMsgs = JSON.parse(localStorage.getItem("idMsgs") || "1");
+        var utilisateurMaison = JSON.parse(localStorage.getItem("utilisateurMaison") || "[]");
+        // houni ntastiw 3 email 
+        var idUtilisateurMs = 0;
+        for (let i = 0; i < utilisateurMaison.length; i++) {
+            if (utilisateurMaison[i].email == email) {
+                idUtilisateurMs = utilisateurMaison[i].id;
+            }
+
+        }
+        var message = {
+            id: idMsgs,
+            idUtilisateurMs: idUtilisateurMs,
+            subject: sujet,
+            name: nom,
+            emailEmet: email,
+            emailRec: "marwaghanmi18@gmail.com",
+            message: msg
+        };
+
+
+        msgs.push(message);
+        localStorage.setItem("msgs", JSON.stringify(msgs));
+        localStorage.setItem("idMsgs", idMsgs + 1);
+
+        // Swal.fire({
+        //     position: 'top-end',
+        //     icon: 'success',
+        //     title: 'Your message has been send',
+        //     showConfirmButton: false,
+        //     timer: 3000,
+        //   })
+
+
+    }
+}
+function displayMessage() {
+    var msgs = JSON.parse(localStorage.getItem("msgs") || "[]");
+    var MsgTable = ` <table class ="table table-hover">
+        <tr>
+            <th> Nom </th>
+            <th>Sujet</th>
+            <th>Messages</th>
+            <th>Actions</th>
+        </tr>`;
+    for (let i = 0; i < msgs.length; i++) {
+        MsgTable = MsgTable + `
+            <tr>
+            <td>${msgs[i].name}</td>
+            <td>${msgs[i].subject}</td>
+            <td>${msgs[i].message}</td>
+            <td>
+            <button type="button" class="btn btn-primary" onclick="answerMessage(${msgs[i].id})" >Repondre</button>
+
+            </td>
+            </tr>`;
+
+    }
+    MsgTable = MsgTable + `</table>  `;
+    document.getElementById('MsgTable').innerHTML = MsgTable;
+
+
+
+}
+function answerMessage(id) {
+    var searchedMsg = searchById(id, "msgs");
+    // declarer une variable n7otou fiha html 
+    var answerMsg = `
+        
+    <div class="col-md-12 form-group">
+    <input type="text" class="form-control" id="sujet" name="name" value=${searchedMsg.sujet} disabled=true>
+   
+
+</div>
+<div class="col-md-12 form-group">
+        <input type="text" class="form-control" id="emailRec" name="name" value=${searchedMsg.emailEmet} disabled=true  >
+      
+
+    </div>
+    <div class="col-md-12 form-group">
+	    <textarea class="form-control" name="message" id="newMsg"  name="name" ></textarea>
+    <span id="newMsgError"></span>
+    </div>
+
+    <div class="col-md-12 form-group" >
+        <button type="submit" value="submit" class="primary-btn" style="margin-left:30px" onclick="validateSendMessage(${searchedMsg.id})">Envoyer</button>
+    </div>`;
+    document.getElementById("answerMsg").innerHTML = answerMsg;
+}
+function validateSendMessage(id) {
+    var searchedMsg = searchById(id, "msgs");
+    var newMsg = document.getElementById("newMsg").value;
+    if (newMsg.length != 0) {
+        document.getElementById("newMsgError").innerHTML = "";
+    }
+    else {
+        document.getElementById("newMsgError").innerHTML = "Message is required";
+        document.getElementById("newMsgError").style.color = "red";
+
+    }
+
+    if (newMsg.length != 0) {
+        var msgs = JSON.parse(localStorage.getItem("msgs") || "[]");
+        var idMsgs = JSON.parse(localStorage.getItem("idMsgs") || "1");
+        var message = {
+            id: idMsgs,
+            subject: searchedMsg.sujet,
+            emailRec: searchedMsg.emailEmet,
+            message: newMsg,
+            emailEmet: "marwaghanmi18@gmail.com",
+            idUtilisateurMs: 1,
+            name: "Marwa"
+
+        };
+
+        msgs.push(message);
+        localStorage.setItem("msgs", JSON.stringify(msgs));
+        localStorage.setItem("idMsgs", idMsgs + 1);
+        location.reload();
+
+
+    }
+}
+function setHeader() {
+    var connectedUtilisateurMs = JSON.parse(localStorage.getItem("connectedUtilisateurMs"));
+    var header = ``;
+    var cartSearch = ``;
+
+    if (connectedUtilisateurMs) {
+
+        // super admin
+        if (connectedUtilisateurMs.role == "super admin") {
+            header = `
+
+            <li><a class="active" href="index.html">Acceuil</a></li>
+            <li><a href="maisons.html">Maisons d'Hotes</a></li>
+            <li><a href="contact.html">Contact</a></li>
+             <li><a href="adminMaison.html">tableau de bord</a></li>
+            <li class="nav-item"><a class="nav-link">${connectedUtilisateurMs.firstName + ' ' + connectedUtilisateurMs.lastName}</a></li>
+			<li class="nav-item"><a class="nav-link" onclick="logout()">Logout</a></li>
+
+            `;
+        }
+
+        // propriétaire
+        else if (connectedUtilisateurMs.role == "proprietaireMs") {
+            header = `
+            <li><a class="active" href="index.html">Acceuil</a></li>
+            <li><a href="maisons.html">Maisons d'Hotes</a></li>
+            <li><a href="contact.html">Contact</a></li>
+             <li><a href="adminMaison.html">tableau de bord</a></li>
+            <li class="nav-item"><a class="nav-link">${connectedUtilisateurMs.prenomProp + ' ' + connectedUtilisateurMs.nomProp}</a></li>
+			<li class="nav-item"><a class="nav-link" onclick="logout()">Logout</a></li>
+            `;
+        }
+
+        // utilisateur
+        else {
+            header = `
+
+            <li class="active"><a href="./index.html">Acceuil</a></li>
+            <li><a href="maisons.html">Maisond d'hotes</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li class="nav-item"><a class="nav-link">${connectedUtilisateurMs.prenom + ' ' + connectedUtilisateurMs.nom}</a></li>
+			<li class="nav-item"><a class="nav-link" onclick="logout()">Logout</a></li>
+            `;
+
+
+
+            cartSearch = `
+            <li class="nav-item"><a href="panier.html" class="cart"><span class="ti-bag" id="nbOrder"></span></a></li>
+                         `;
+
+        }
+
+        // <li><a href="#">Pages</a>
+        //     <ul class="dropdown">
+        //         <li><a href="./about.html">About Us</a></li>
+        //         <li><a href="./room-details.html">Room Details</a></li>
+        //         <li><a href="./blog-details.html">Blog Details</a></li>
+        //     </ul>
+        // </li>
+        // <li><a href="./blog.html">News</a></li>
+
+
+        //visiteur
+    } else {
+        header = `
+        <li class="active"><a href="./index.html">Acceuil</a></li>
+        <li><a href="./rooms.html">Maisond d'hotes</a></li>
+        <li><a href="./contact.html">Contact</a></li>
+        `;
+        cartSearch = `
+        <li class="nav-item"><a href="panier.html" class="cart"><span class="ti-bag" id="nbOrder"></span></a></li>
+        <li class="nav-item">
+       <button class="search"><span class="lnr lnr-magnifier" id="search" ></span></button>
+                      </li>`;
+
+    }
+
+
+    document.getElementById("headerId").innerHTML = header;
+    document.getElementById("cartSearch").innerHTML = cartSearch;
+}
+function nbOrders() {
+
+    var connectedUtilisateurMs = JSON.parse(localStorage.getItem("connectedUtilisateurMs"));
+    var orders = JSON.parse(localStorage.getItem("orders") || "[]");
+
+    var nb = 0;
+
+    for (let i = 0; i < orders.length; i++) {
+        if (orders[i].idUser == connectedUtilisateurMs.id) {
+            nb += 1;
+
+        }
+    }
+
+    document.getElementById("nbOrder").innerHTML = "(" + nb + ")";
+
+
+}
+
+
+function logout() {
+    localStorage.removeItem("connectedUserMH");
+    location.reload();
+}
+function displayMaisonHT() {
+    var maisons = JSON.parse(localStorage.getItem("maisons") || "[]");
+    var maisonsHotes = ``;
+    // for (let i = 0; i < maisons.length; i++) {
+    for (let i = 0; i < maisons.length; i++) {
+
+
+        maisonsHotes = maisonsHotes + `
+        <div class="col-xl-4 col-md-4">
+        <div class="single_offers"  >
+        <div class="about_thumb align-middle">
+        <img class="align-middle" style="heigth: 200px;" src='${maisons[i].image}' alt="image non definie">
+       </div>
+        <div>
+            <h3 class="align-middle" style=" text-align: center;"><a href="#" style="color: #7bc200; text-align: center;">${maisons[i].nomMaison}</a> </h3>
+            <h4 class="align-middle" style="margin-left: 25px;text-align: center;">${maisons[i].region}</h4>
+            <h2 class="align-middle" style="margin-left: 25px;text-align: center;">${maisons[i].tarifAdult} DT</h2>
+            </div>
+            <a class="align-middle" href="reservation.html" class="book_now">Reservez Maintenant</a>
+            </div>
+
+             </div>
+        `;
+    }
+    document.getElementById("maisonsHotes").innerHTML = maisonsHotes;
+
+
+}
+function displaySwiper() {
+    var maisons = JSON.parse(localStorage.getItem("maisons") || "[]");
+    var swiperMaison = ``;
+    // for (let i = 0; i < maisons.length; i++) {
+    for (let i = 0; i < maisons.length; i++) {
+
+
+        swiperMaison = swiperMaison + `
+
+        <div class="swiper-slide">
+                    <img src='${maisons[i].image}' alt="image non definie ">
+                    <div class="info">
+                        <h4><a href="maisons.html">${maisons[i].nomMaison}</a></h4>
+                        <h4>${maisons[i].region}</h4>
+
+                    </div>
+                </div>
+        `;
+    }
+    document.getElementById("swiperMaison").innerHTML = swiperMaison;
+
+
+}
+// function displayOffres() {
+//     var maisons = JSON.parse(localStorage.getItem("maisons") || "[]");
+//     var offres = ``;
+//     // for (let i = 0; i < maisons.length; i++) {
+//     for (let i = 0; i < maisons.length; i++) {
+
+
+//         offres = offres + `
+
+//         <div class="swiper-slide">
+//                     <img src='${maisons[i].image}' alt="image non definie ">
+//                     <div class="info">
+//                         <h4><a href="maisons-gallery.html">${maisons[i].nomMaison}</a></h4>
+//                         <h4>${maisons[i].region}</h4>
+//                         <h4 style="margin-left: 25px;">${maisons[i].tarifAdult} DT</h4>
+
+//                     </div>
+//                 </div>
+//         `;
+//     }
+//     document.getElementById("offres").innerHTML = offres;
+
+
+// }
+function displayMeilleurMaison() {
+    var maisons = JSON.parse(localStorage.getItem("maisons") || "[]");
+    // var connectedUtilisateurMs = JSON.parse(localStorage.getItem("connectedUtilisateurMs"));
+    meilleurMH = ``;
+    // for (let i = 0; i < maisons.length; i++) {
+    for (let i = 0; i < maisons.length; i++) {
+        
+       
+            meilleurMH = meilleurMH + `
+
+        <div class="col-xl-4 col-md-4">
+        <div class="single_offers">
+            <div class="about_thumb">
+                <img src='${maisons[i].image}' alt="image non definie ">
+            </div>
+            <div>
+            <h3 style=" text-align: center;"><a href="#" style=" text-align: center;">${maisons[i].nomMaison}</a> </h3>
+            <h2 style="margin-left: 25px;text-align: center;">${maisons[i].tarifAdult} DT</h2>
+            <a href="reservation.html" class="book_now">Reservez Maintenant</a>
+
+            </div>
+        </div>
+    </div>
+        `;
+
+        }
+        
+
+
+       
+   
+    document.getElementById("meilleurMH").innerHTML=meilleurMH;
+
+
+}
+function reservationMaison(id) {
+    localStorage.setItem("idMaisonReservation", id);
+    location.replace('reservation.html');
+}
+function displayMaisonReservation() {
+    var idMaisonReservation = localStorage.getItem("idMaisonReservation");
+    var searchedMaisonHT = searchById(Number(idMaisonReservation), "maisons");
+    document.getElementById("nomMaisonToReserve").innerHTML = searchedMaisonHT.nomMaison;
+    document.getElementById("regionMaisonToReserve").innerHTML = searchedMaisonHT.region;
+    document.getElementById("themeMaisonToReserve").innerHTML = searchedMaisonHT.theme;
+    document.getElementById("adresseMaisonToReserve").innerHTML = searchedMaisonHT.adresse;
+    document.getElementById("nbrChambreToReserve").innerHTML = searchedMaisonHT.nbrChambre;
+    document.getElementById("tarifEnfantToReserve").innerHTML = searchedMaisonHT.tarifEnfant + " DT";
+    document.getElementById("tarifAdultToReserve").innerHTML = searchedMaisonHT.tarifAdulte + " DT";
+    document.getElementById("tarifSingleRoomToReserve").innerHTML = searchedMaisonHT.tarifSingleRoom + " DT";
+    document.getElementById("tarifDoubleRoomToReserve").innerHTML = searchedMaisonHT.tarifDoubleRoom + " DT";
+    document.getElementById("descriptionMaisonToReserve").innerHTML = searchedMaisonHT.descriptionMaison + " DT";
+}
+function validateReservation() {
+    var date = document.getElementById("dateToReserve").value;
+    var idMaisonReservation = localStorage.getItem("idMaisonReservation");
+
+    var searchedMaisonHT = searchById(idMaisonReservation, "maisons");
+
+    var connectedUtilisateurMs = JSON.parse(localStorage.getItem("connectedUtilisateurMs"));
+
+    var ordersMaison = JSON.parse(localStorage.getItem("ordersMaison") || "[]");
+    var idOrderMaison = JSON.parse(localStorage.getItem("idOrderMaison") || "1");
+
+    var orderMaison = {
+        id: idOrderMaison,
+        date: date,
+        idMaison: searchedMaisonHT.id,
+        idUtilisateurMs: connectedUtilisateurMs.id
+    };
+
+    ordersMaison.push(orderMaison);
+
+    localStorage.setItem("ordersMaison", JSON.stringify(ordersMaison));
+    localStorage.setItem("idOrderMaison", idOrderMaison + 1);
+
+
+    location.replace("panier.html");
+}
